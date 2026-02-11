@@ -1,0 +1,61 @@
+       .container {
+           text-align: center;
+           box-sizing: border-box;
+       }
+
+       video {
+           border: 2px solid #333;
+       }
+
+      .photo.selected img {
+           box-shadow:
+        0 0 0 2px rgba(13,110,253,.6),
+        0 0 12px 6px rgba(13,110,253,.55);
+       }
+
+       .controls {
+           margin-top: 10px;
+       }
+
+       .controls input {
+           padding: 5px;
+           width: 100px;
+       }
+
+       .controls.button {
+           padding: 10px 20px;
+           cursor: pointer;
+       }
+
+       #photos {
+           display: flex;
+           flex-wrap: wrap;
+           margin-top: 20px;
+       }
+
+       .photo {
+           margin: 10px;
+           position: relative;
+       }
+
+       .photo img {
+           width: 90%;
+           height: auto;
+           border: 2px solid #333;
+       }
+
+       .photo button {
+           position: absolute;
+           bottom: 5px;
+           left: 27.5%;
+           padding: 5px;
+           cursor: pointer;
+       }
+
+       .photo input[type="checkbox"] {
+           position: absolute;
+           top: 10px;
+           left: 35px;
+           transform: scale(1.5);
+       }
+       

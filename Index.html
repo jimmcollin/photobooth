@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Booth</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        video {
+            border: 2px solid #333;
+            width: 640px;
+            height: 480px;
+        }
+
+        .controls {
+            margin-top: 10px;
+        }
+
+            .controls input {
+                padding: 5px;
+                width: 100px;
+            }
+
+            .controls.button {
+                padding: 10px 20px;
+                cursor: pointer;
+            }
+
+            #photos {
+                display: flex;
+                flex-wrap: wrap;
+                margin-top: 20px;
+            }
+
+            .photo {
+                margin: 10px;
+                position: relative;
+            }
+
+            .photo img {
+                width: 100px;
+                height: auto;
+                border: 2px solid #333;
+            }
+            
+            .photo button {
+                position: absolute;
+                bottom: 5px;
+                left: 27.5%;
+                padding: 5px;
+                cursor: pointer;
+            }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Photo Booth</h1>
+        <video autoplay="" id="video"></video>
+        <div class="controls">
+            <input type="number" id="timer" min="0" placeholder="Timer (Sec)" />
+            <button id="capture-btn">Capture</button>
+        </div>
+        <div id="photos"></div>
+    </div>
+    <script>
+        var video = document.getElementById("video");
+        var captureBtn = document.getElementById("capture-btn");
+        var photosContainer = document.getElementById("photos");
+        var timerInput = document.getElementById("timer");
+
+
+        // Access the camera and stream to video
+        navigator.mediaDevices.getUserMedia({ video: true }).then((s) => { video.srcObject = s; });
+
+        // Capture photo with timer
+        captureBtn.addEventListener("click", () => {
+            var timer = timerInput.value = 1;
+            if (timer > 0) {
+                captureBtn.disabled = true;
+                var countdown = setInterval(() => {
+                    captureBtn.textContext = 'Capture (${timer})';
+                    if (timer <= 0) {
+                        clearInterval(countdown);
+                        captureBtn.textContext = "Capture";
+                        captureBtn.disabled = false;
+                        capturePhoto();
+                    }
+                    timer--;
+                }, 1000)
+            } else {
+                capturePhoto();
+            }
+        });
+
+        function capturePhoto() {
+            var canvas = document.createElement("canvas");
+            var context = canvas.getContext("2d");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw the current video frame to the canvas;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            var dataUrl = canvas.toDataURL("image/png");
+
+            // Create image list from captured photo
+            var photoDiv = document.createElement("div");
+            photoDiv.classList.add("photo");
+
+
+            var img = document.createElement("img");
+            img.src = dataUrl;
+            photoDiv.appendChild(img);
+
+            // Create download image feature
+            var downloadBtn = document.createElement("button");
+            downloadBtn.textContent = "Download";
+            downloadBtn.addEventListener("click", () => {
+                var a = document.createElement("a");
+                a.href = dataUrl;
+                a.download = "photo.png";
+                a.click();
+            });
+
+            photoDiv.appendChild(downloadBtn);
+            photosContainer.append(photoDiv);
+        }
+    </script>
+</body>
+</html>
