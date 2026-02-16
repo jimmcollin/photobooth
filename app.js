@@ -99,8 +99,6 @@ const styleSrcUrls = [
     "https://cdn.jsdelivr.net",
 ];
 const connectSrcUrls = [
-    "https://localhost:3500",
-    "wss://localhost:3500",
     "https://cdn.jsdelivr.net",
     "https://api.mapbox.com/",
     "https://a.tiles.mapbox.com/",
