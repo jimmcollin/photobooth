@@ -143,8 +143,9 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb'}));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
+// Redirect HTTP to HTTPS on Heroku (checks x-forwarded-proto header)
 app.use((req, res, next) => {
-    if (!req.secure) {
+    if (process.env.NODE_ENV === 'production' && req.header('x-forwarded-proto') !== 'https') {
         return res.redirect(`https://${req.headers.host}${req.url}`);
     }
     next();
@@ -173,18 +174,8 @@ app.use((err, req, res, next) => {
 
 
 
-const https = require('https');
-const fs = require('fs');
-
 const port = process.env.PORT || 3500;
 
-https.createServer({
-    key: fs.readFileSync(path.join(__dirname, 'ssl/key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'ssl/cert.pem'))
-}, app).listen(port, () => {
-    console.log(`Serving on https://localhost:${port}`);
+app.listen(port, () => {
+    console.log(`Serving on port ${port}`);
 });
-
-// app.listen(port, () => {
-//     console.log(`Serving on ${port}`);
-// });
