@@ -1,10 +1,14 @@
 (() => {
     document.addEventListener("DOMContentLoaded", () => {
-
         const startBtn = document.getElementById("startCameraBtn");
         const captureBtn = document.getElementById("captureBtn");
         const stopBtn = document.getElementById("stopCameraBtn");
         const selectBtn = document.getElementById("selectImageBtn");
+
+        let bucket;
+        mongoose.connection.once('open', () => {
+            bucket = new GridFSBucket(mongoose.connection.db, { bucketName: 'photos' });
+        });
 
         if (startBtn) {
             startBtn.addEventListener("click", startCamera);
@@ -27,11 +31,28 @@
                 const dataURL = img.src;
 
                 document.getElementById('selectedDataUrl').value = dataURL;
-                document.getElementById('selectImageForm').submit();    
+                document.getElementById('selectImageForm').submit();
             });
         }
     });
 })();
+
+// async function getBucket() {
+//     if (!bucket) throw new Error("GridFSBucket not initialized yet");
+//     return bucket;
+// };
+
+// async function streamSessionImage(req, res) {
+//     const session = await Photo.findById(req.params.id);
+//     if (!session || !session.imageObjId) return res.status(404).send("Session not found");
+
+//     const files = await mongoose.connection.db.collection('photos.files').find({ _id: session.imageObjId }).toArray();
+//     if (!files || files.length === 0) return res.status(404).send("Image not found");
+
+//     const file = files[0];
+//     if (file.contentType) res.set('Content-Type', file.contentType);
+//     bucket.openDownloadStream(session.imageObjId).pipe(res);
+// }
 
 function startCamera() {
     const video = document.getElementById('video');
@@ -111,7 +132,7 @@ function capturePhoto() {
                 if (cb !== this) {
                     cb.checked = false;
                     cb.classList.remove('input.photo-selected');
-                } 
+                }
             });
         }
 
@@ -125,7 +146,7 @@ function capturePhoto() {
     photoDiv.appendChild(selectCheckbox);
 
     photosContainer.appendChild(photoDiv);
-   // video.srcObject = null;// your existing capture logic
+    // video.srcObject = null;// your existing capture logic
 };
 
 function getSelectedImageDataUrl() {
@@ -148,7 +169,7 @@ async function selectImage() {
         },
         body: JSON.stringify({ image: dataURL })
     });
-   
-    const {returnedUrl} = await res.json();
+
+    const { returnedUrl } = await res.json();
     window.location.href = returnedUrl;
 }

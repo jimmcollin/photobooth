@@ -1,0 +1,32 @@
+<% layout('layouts/boilerplate') %>
+  <div class="container">
+    <h1>Photo Gallery</h1>
+    <hr>
+    <div class="row">
+      <% for(let session of sessions) { %>
+        <div class="col-md-4 mb-4">
+          <div class="card rounded-4 shadow mt-2">
+            <div class="card-body">
+              <% if (session._id) { %>
+                <img src="/photosession/<%= session._id %>/image" class="img-fluid rounded border mb-2"
+                  alt="Session photo" />
+                <% } else { %>
+                  <p class="text-muted">No photo available for this session.</p>
+                  <% } %>
+                  <hr class="my-3 border-primary">  
+                    <h5 class="card-title">
+                      <%= session.memberName %>
+                    </h5>
+                    <p class="card-text comment-preview">
+                      <%= session.comment %>
+                    </p>
+                    <p class="text-muted">
+                      <%= session.memberEmail %>
+                    </p>
+                    <a href="/photosession/<%= session._id %>" class="btn btn-primary">View</a>
+            </div>
+          </div>
+        </div>
+        <% } %>
+    </div>
+  </div>

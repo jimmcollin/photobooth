@@ -6,6 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const { GridFSBucket } = require('mongodb');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
 const MongoDBStoreModule = require('connect-mongo');
@@ -62,21 +63,20 @@ store.on('error',
         console.log('SESSION STORE ERROR', e);
     });
 
-const sessionConfig = {
-    store,
-    name: 'session',
-    secret,
+    
+app.use(session({
+    store: store,
+    secret: process.env.SESSION_SECRET || 'thisshouldbeabettersecret!',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        //secure: true,
-        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
-        maxAge: 1000 * 60 * 60 * 24 * 7
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production" || true,
+        maxAge: 1000 * 60 * 30 // 30 minutes 
     }
-}
+}));
 
-app.use(session(sessionConfig));
 app.use(flash());
 app.use(helmet({ contentSecurityPolicy: false }));
 
@@ -98,6 +98,8 @@ const styleSrcUrls = [
     "https://cdn.jsdelivr.net",
 ];
 const connectSrcUrls = [
+    "https://localhost:3500",
+    "wss://localhost:3500",
     "https://cdn.jsdelivr.net",
     "https://api.mapbox.com/",
     "https://a.tiles.mapbox.com/",
@@ -142,6 +144,14 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb'}));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
+app.use((req, res, next) => {
+    if (!req.secure) {
+        return res.redirect(`https://${req.headers.host}${req.url}`);
+    }
+    next();
+});
+
+
 app.use('/', userRoutes);
 app.use('/photosession', photoSessionRoutes);
 
@@ -162,18 +172,20 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render('error', { err });
 });
 
+
+
+const https = require('https');
+const fs = require('fs');
+
 const port = process.env.PORT || 3500;
 
-// const https = require('https');
-// const fs = require('fs');
-
-// https.createServer({
-//     key: fs.readFileSync('key.pem'),
-//     cert: fs.readFileSync('cert.pem')
-// }, app).listen(port, () => {
-//     console.log(`Serving on https://localhost:${port}`);
-// });
-
-app.listen(port, () => {
-    console.log(`Serving on ${port}`);
+https.createServer({
+    key: fs.readFileSync(path.join(__dirname, 'ssl/key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'ssl/cert.pem'))
+}, app).listen(port, () => {
+    console.log(`Serving on https://localhost:${port}`);
 });
+
+// app.listen(port, () => {
+//     console.log(`Serving on ${port}`);
+// });

@@ -1,20 +1,34 @@
-const express = require('express');
+const express = require("express");
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
+const catchAsync = require("../utils/catchAsync");
+const photobooth = require("../controllers/photobooth");
+
 const router = express.Router();
-const photobooth = require('../controllers/photobooth.js');
-const catchAsync = require('../utils/catchAsync.js');
-const methodOverride = require('method-override');
-const Photo = require('../models/photobooth.js');
-const { isLoggedIn, validatePhotobooth, storeReturnTo } = require('../middleware.js');
 
-router.route('/')
-    .get(catchAsync(photobooth.index))
-    .post(isLoggedIn, validatePhotobooth, catchAsync(photobooth.createPhotobooth));
+router.get("/", catchAsync(photobooth.index));
 
-router.post('/select', catchAsync(photobooth.selectPhoto));
+router.post("/select", upload.single("image"), catchAsync(photobooth.selectPhoto));
 
-router.route('/new')
-    .get(photobooth.renderNewForm)
-    .post(catchAsync(photobooth.createPhoto));
+router.post("/upload", upload.single("photo"), catchAsync(photobooth.uploadImage));
 
+router.get("/new", catchAsync(photobooth.renderNewForm));
+
+router.get("/preview-image", catchAsync(photobooth.streamPreviewImage));
+
+router.post("/details", catchAsync(photobooth.saveDetails));
+
+// Gallery - view all sessions
+router.get("/gallery", catchAsync(photobooth.getAllSessions));
+
+// API endpoints (optional - if you want JSON responses)
+router.get("/api/sessions", catchAsync(photobooth.getSessionsJSON));
+router.get("/api/sessions/:id", catchAsync(photobooth.getSessionJSON));
+
+// View single session - MUST BE LAST among GET routes with /:id pattern
+router.get("/:id", catchAsync(photobooth.getSession));
+
+// Stream image for a specific session
+router.get("/:id/image", catchAsync(photobooth.streamSessionImage));
 
 module.exports = router;

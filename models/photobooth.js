@@ -1,21 +1,22 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
-const ImageSchema = new Schema({
-    url: String,
-    filename: String
-});
+const PhotoboothSchema = new Schema(
+  {
+    memberName: { type: String, required: true, trim: true },
+    memberEmail: { type: String, required: true, trim: true, lowercase: true },
+    comment: { 
+      type: String, 
+      default: "",
+      maxLength: [500, "Comment cannot exceed 500 characters"]
+    },
+    sessionDate: { type: Date, default: Date.now },
 
-ImageSchema.virtual("thumbnail").get(function() {
-    return this.url.replace("/upload", "/upload/w_200");
-});
+    // set AFTER upload completes
+    imageObjId: { type: Schema.Types.ObjectId, default: null },
+    createdAt: { type: Date, default: Date.now }
+  },
+  { timestamps: true }
+);
 
-const opts = { toJSON: { virtuals: true } };
-
-const photoboothSchema = new Schema({
-    memberName: String,
-    sessionDate: Date,
-    image: [ImageSchema],
-}, opts);
-
-module.exports = mongoose.model("Photobooth", photoboothSchema);
+module.exports = mongoose.model("Photobooth", PhotoboothSchema);

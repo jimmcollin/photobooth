@@ -1,27 +1,29 @@
-﻿
-<nav class="navbar sticky-top navbar-expand-lg bg-dark navbar-dark">
+﻿<nav class="navbar sticky-top navbar-expand-lg bg-dark navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">Photo Booth</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
                 <a class="nav-link" href="/">Home</a>
                 <% if(!currentUser) { %>
-                <a href="/photosession" class="nav-link">Photo Session</a>
-                <% } else { %>
                     <a href="/photosession" class="nav-link">Photo Session</a>
+                    <a href="/photosession/gallery" class="nav-link">Gallery</a>
+                <% } else if (currentUser.role==='admin' ) { %>
+                    <a href="/photosession" class="nav-link">Photo Session</a>
+                    <a href="/photosession/gallery" class="nav-link">Gallery</a>
                     <a href="/managephotos" class="nav-link">Manage Photos</a>
                 <% } %>
             </div>
             <div class="navbar-nav ms-auto">
-                <% if(!currentUser) { %> 
-                <a class="nav-link" href="/login">Login</a>
-                <a class="nav-link" href="/register">Register</a>
-                <% } else { %>
-                <a class="nav-link" href="/logout">Logout</a>
-                <% } %>
+                <% if(!currentUser) { %>
+                    <a class="nav-link" href="/login">Login</a>
+                    <a class="nav-link" href="/register">Register</a>
+                    <% } else { %>
+                        <a class="nav-link" href="/logout">Logout</a>
+                        <% } %>
             </div>
         </div>
     </div>
