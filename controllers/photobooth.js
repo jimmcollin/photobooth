@@ -37,10 +37,20 @@ module.exports.selectPhoto = async (req, res) => {
   
   console.log("Stored file ID in session:", req.session.selectedImageFileId);
 
-  res.redirect('/photosession/new');
+  // Explicitly save session before responding
+  req.session.save((err) => {
+    if (err) {
+      console.error("Session save error:", err);
+      return res.status(500).json({ error: "Failed to save session" });
+    }
+    // Return success JSON instead of redirecting
+    res.json({ success: true, redirect: '/photosession/new' });
+  });
 };
 
 module.exports.renderNewForm = async (req, res) => {
+  console.log("renderNewForm - session.selectedImageFileId:", req.session.selectedImageFileId);
+  console.log("renderNewForm - hasImage will be:", !!req.session.selectedImageFileId);
   res.render("photobooth/new", { hasImage: !!req.session.selectedImageFileId });
 };
 

@@ -129,20 +129,23 @@
 
     const res = await fetch("/photosession/select", {
       method: "POST",
-      body: formData
+      body: formData,
+      credentials: 'same-origin'
     });
 
-    alert(`'Response:' ${res.status} ${res.statusText} ${res.url}`);
     if (!res.ok) {
-
-    if (res.redirected) {
-      window.location.href = res.url;
+      alert(`Image upload failed. Please try again. ${res.status} ${res.statusText}`);
       return;
     }
-      
-      //console.log("Upload failed:", res.status, res.statusText);
-      alert(`Image upload failed. Please try again. ${res.status} ${res.statusText} ${res.url}`);
-      return;
+
+    // Parse JSON response
+    const data = await res.json();
+    
+    if (data.success && data.redirect) {
+      // Wait a moment for session to fully persist in MongoDB
+      setTimeout(() => {
+        window.location.href = data.redirect;
+      }, 100);
     }
   }
 
