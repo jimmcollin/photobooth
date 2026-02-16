@@ -132,12 +132,14 @@
       body: formData
     });
 
+    alert(`'Response:' ${res.status} ${res.statusText} ${res.url}`);
+    if (!res.ok) {
+
     if (res.redirected) {
       window.location.href = res.url;
       return;
     }
-
-    if (!res.ok) {
+      
       //console.log("Upload failed:", res.status, res.statusText);
       alert(`Image upload failed. Please try again. ${res.status} ${res.statusText} ${res.url}`);
       return;
