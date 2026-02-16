@@ -37,7 +37,7 @@ module.exports.selectPhoto = async (req, res) => {
   
   console.log("Stored file ID in session:", req.session.selectedImageFileId);
 
-  res.redirect('/photosession/new', { hasImage: !!req.session.selectedImageFileId });
+  res.redirect('/photosession/new');
 };
 
 module.exports.renderNewForm = async (req, res) => {

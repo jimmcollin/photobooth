@@ -138,7 +138,7 @@
     }
 
     if (!res.ok) {
-      console.error("Upload failed:", res.status, res.statusText);
+      console.log("Upload failed:", res.status, res.statusText);
       alert("Image upload failed. Please try again.");
       return;
     }
