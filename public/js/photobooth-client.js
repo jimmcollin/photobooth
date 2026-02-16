@@ -138,8 +138,8 @@
     }
 
     if (!res.ok) {
-      console.log("Upload failed:", res.status, res.statusText);
-      alert("Image upload failed. Please try again.");
+      //console.log("Upload failed:", res.status, res.statusText);
+      alert(`Image upload failed. Please try again. ${res.status} ${res.statusText} ${res.url}`);
       return;
     }
   }
