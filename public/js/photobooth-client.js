@@ -7,8 +7,8 @@
 
   const photosDiv = document.getElementById("photos");
   const selectBtn = document.getElementById("selectImageBtn");
-  const selectForm = document.getElementById("selectImageForm");
-  const selectedDataUrlInput = document.getElementById("selectedDataUrl");
+  // const selectForm = document.getElementById("selectImageForm");
+  // const selectedDataUrlInput = document.getElementById("selectedDataUrl");
 
   let stream = null;
   let selectedCard = null;
