@@ -4,7 +4,13 @@ const { Schema } = mongoose;
 const PhotoboothSchema = new Schema(
   {
     memberName: { type: String, required: true, trim: true },
-    memberEmail: { type: String, required: true, trim: true, lowercase: true },
+    memberEmail: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please enter a valid email address"]
+    },
     comment: { 
       type: String, 
       default: "",

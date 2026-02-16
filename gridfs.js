@@ -4,7 +4,7 @@ const { GridFSBucket } = require("mongodb");
 let bucket;
 
 mongoose.connection.once("open", () => {
-  bucket = new GridFSBucket(mongoose.connection.db, { bucketName: "fs" });
+  bucket = new GridFSBucket(mongoose.connection.db, { bucketName: "photos" });
 });
 
 function getBucket() {

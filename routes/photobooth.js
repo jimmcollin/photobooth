@@ -25,6 +25,9 @@ router.get("/gallery", catchAsync(photobooth.getAllSessions));
 router.get("/api/sessions", catchAsync(photobooth.getSessionsJSON));
 router.get("/api/sessions/:id", catchAsync(photobooth.getSessionJSON));
 
+// Delete session - must come BEFORE /:id
+router.delete("/:id", catchAsync(photobooth.deleteSession));
+
 // View single session - MUST BE LAST among GET routes with /:id pattern
 router.get("/:id", catchAsync(photobooth.getSession));
 

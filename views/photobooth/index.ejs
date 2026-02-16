@@ -2,47 +2,45 @@
     <div class="container px-3 pt-5">
         <div class="row g-3">
             <div class="col-12 col-lg-6">
-                <div class="card rounded-4 shadow">
+                <div id="video-capture-card" class="card rounded-4 shadow">
                     <h5 class="card-header h5 text-center">Photo Booth</h5>
-                    <div class="card-body">
-                        <p class="card-text text-start mb-0">This is the photo booth page. You can capture photos using your camera or
-                            upload existing photos from your device. Use the buttons below to start the camera, capture a photo, or stop the
-                            camera.</p>
-                        <p class="card-text text-start"> Also you can also upload a photo using the form provided below.</p>
-                        <p class="card-text text-start">Your captured photos will appear in the gallery on the right side of the
-                            page.</p>
+                    <div id="video-instruction" class="card-body">
+                        <p class="card-text text-start mb-0"> Use the buttons below to start and stop the camera and capture a photo.
+                            You can also upload a photo using the form provided below.</p>
+                        <p class="card-text text-start">Your photos will appear on the gallery page.</p>
                     </div>
-                    <div class="card-body">
+                    <div id="video-display" class="card-body">
                         <div class="booth">
                             <video id="video" autoplay playsinline class="mb-1"></video>
                         </div>
                         <div class="d-flex flex-wrap gap-2 justify-content-center mt-2">
-                            <button class="btn btn-danger" id="captureBtn">Capture</button>
-                            <button class="btn btn-success" id="startCameraBtn">Start Camera</button>
-                            <button class="btn btn-warning" id="stopCameraBtn">Stop Camera</button>
+                            <button id="startCameraBtn" class="btn btn-sm btn-success">Start Camera</button>
+                            <button id="stopCameraBtn" class="btn btn-sm btn-warning">Stop Camera</button>
+                            <button id="captureBtn" class="btn btn-sm btn-danger">Capture</button>
                         </div>
                         <hr>
-                        <div>
+                        <br>
+                        <div id="upload-photo-form">
                             <form action="/photosession/upload" method="POST" enctype="multipart/form-data">
                                 <div class="mb-3">
                                     <input type="file" name="photo" class="form-control" id="photoInput" required>
                                 </div>
-                                <button type="submit" class="btn btn-primary w-100">Upload</button>
+                                <button id="photo-upload" type="submit" class="btn btn-primary w-100 mb-3">Upload</button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-lg-6">
-                <div class="card rounded-4 shadow">
+                <div id="captured-photo-list" class="card rounded-4 shadow">
                     <h5 class="card-header h5 text-center">Gallery</h5>
                     <div class="card-body">
-                        <p class="card-text">Your captured photos will appear here.</p>
-                        <p class="card-text">Please, select the best photo to send to Bonnie.</p>
+                        <p class="card-text">Your captured photos will appear here.
+                        Please, select the best photo to send to Bonnie.</p>
                         <div class="gallery mt-4 border rounded p-3 mb-2" style="max-height: 72vh; overflow-y: auto;">
                             <div id="photos"></div>
                         </div>
-                        <button class="btn btn-success w-100" id="selectImageBtn">Select Image</button>
+                        <button class="btn btn-success w-100 mb-3" id="selectImageBtn">Select Image</button>
                     </div>
                 </div>
             </div>

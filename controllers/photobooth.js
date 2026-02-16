@@ -186,3 +186,32 @@ module.exports.uploadImage = async (req, res) => {
     res.redirect('/photosession');
   }
 };
+
+// Delete a photo session and its image from GridFS
+module.exports.deleteSession = async (req, res) => {
+  const session = await Photobooth.findById(req.params.id);
+  
+  if (!session) {
+    req.flash("error", "Photo session not found");
+    return res.redirect("/photosession/gallery");
+  }
+
+  try {
+    // Delete image from GridFS if it exists
+    if (session.imageObjId) {
+      const bucket = getBucket();
+      await bucket.delete(new mongoose.Types.ObjectId(session.imageObjId));
+      console.log("Deleted image from GridFS:", session.imageObjId);
+    }
+
+    // Delete the session document
+    await Photobooth.findByIdAndDelete(req.params.id);
+    
+    req.flash("success", "Photo session deleted successfully");
+    res.redirect("/photosession/gallery");
+  } catch (error) {
+    console.error("Error deleting session:", error);
+    req.flash("error", "Error deleting photo session");
+    res.redirect("/photosession/gallery");
+  }
+};
