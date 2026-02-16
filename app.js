@@ -154,15 +154,15 @@ app.use((req, res, next) => {
     next();
 });
 
-
-app.use('/', userRoutes);
-app.use('/photosession', photoSessionRoutes);
-
-
+// Home route
 app.get('/',
     (req, res) => {
         res.render('home');
     });
+
+app.use('/', userRoutes);
+app.use('/photosession', photoSessionRoutes);
+
 
 app.all(/(.*)/,
     (req, res, next) => {
