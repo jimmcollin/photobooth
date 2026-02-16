@@ -11,6 +11,8 @@ module.exports.index = async (req, res) => {
 module.exports.selectPhoto = async (req, res) => {
   if (!req.file) return res.status(400).send("No image uploaded.");
 
+  console.log("selectPhoto - Session ID:", req.sessionID);
+
   const processBuffer = await sharp(req.file.buffer)
     .resize({ width: 800 })
     .jpeg({ quality: 60 })
@@ -49,15 +51,23 @@ module.exports.selectPhoto = async (req, res) => {
 };
 
 module.exports.renderNewForm = async (req, res) => {
+  console.log("renderNewForm - Session ID:", req.sessionID);
   console.log("renderNewForm - session.selectedImageFileId:", req.session.selectedImageFileId);
   console.log("renderNewForm - hasImage will be:", !!req.session.selectedImageFileId);
   res.render("photobooth/new", { hasImage: !!req.session.selectedImageFileId });
 };
 
 module.exports.streamPreviewImage = async (req, res) => {
-  if (!req.session.selectedImageFileId) return res.sendStatus(404);
+  console.log("streamPreviewImage - Session ID:", req.sessionID);
+  console.log("streamPreviewImage - selectedImageFileId:", req.session.selectedImageFileId);
+  
+  if (!req.session.selectedImageFileId) {
+    console.log("streamPreviewImage - No file ID in session, returning 404");
+    return res.sendStatus(404);
+  }
 
   const fileId = new mongoose.Types.ObjectId(req.session.selectedImageFileId);
+  console.log("streamPreviewImage - Streaming file:", fileId);
 
   res.set("Content-Type", "image/jpeg");
   getBucket().openDownloadStream(fileId).pipe(res);

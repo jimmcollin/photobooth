@@ -38,6 +38,9 @@ db.once('open',
     });
 
 const app  = express();
+
+// Trust Heroku proxy for secure cookies
+app.set('trust proxy', 1);
 app.set('query parser', 'extended');
 
 app.engine('ejs', ejsMate);
