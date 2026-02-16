@@ -16,9 +16,9 @@
 
   // Initialize button states on load
   function initializeButtonStates() {
-    captureBtn.disabled = true;
-    stopBtn.disabled = true;
-    startBtn.disabled = false;
+    if(captureBtn) captureBtn.disabled = true;
+    if(stopBtn) stopBtn.disabled = true;
+    if(startBtn) startBtn.disabled = false;
     if (uploadForm) uploadForm.disabled = false;
   }
 
