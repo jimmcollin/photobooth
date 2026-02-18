@@ -1,48 +1,132 @@
 <% layout('layouts/boilerplate') %>
-    <div class="container px-3 pt-5">
-        <div class="row g-3">
-            <div class="col-12 col-lg-6">
-                <div id="video-capture-card" class="card rounded-4 shadow">
-                    <h5 class="card-header h5 text-center">Photo Booth</h5>
-                    <div id="video-instruction" class="card-body">
-                        <p class="card-text text-start mb-0"> Use the buttons below to start and stop the camera and capture a photo.
-                            You can also upload a photo using the form provided below.</p>
-                        <p class="card-text text-start">Your photos will appear on the gallery page.</p>
-                    </div>
-                    <div id="video-display" class="card-body">
-                        <div class="booth">
-                            <video id="video" autoplay playsinline class="mb-1"></video>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 justify-content-center mt-2">
-                            <button id="startCameraBtn" class="btn btn-sm btn-success">Start Camera</button>
-                            <button id="stopCameraBtn" class="btn btn-sm btn-warning">Stop Camera</button>
-                            <button id="captureBtn" class="btn btn-sm btn-danger">Capture</button>
-                        </div>
-                        <hr>
-                        <br>
-                        <div id="upload-photo-form">
-                            <form action="/photosession/upload" method="POST" enctype="multipart/form-data">
-                                <div class="mb-3">
-                                    <input type="file" name="photo" class="form-control" id="photoInput" required>
-                                </div>
-                                <button id="photo-upload" type="submit" class="btn btn-primary w-100 mb-3">Upload</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-lg-6">
-                <div id="captured-photo-list" class="card rounded-4 shadow">
-                    <h5 class="card-header h5 text-center">Gallery</h5>
-                    <div class="card-body">
-                        <p class="card-text">Your captured photos will appear here.
-                        Please, select the best photo to send to Bonnie.</p>
-                        <div class="gallery mt-4 border rounded p-3 mb-2" style="max-height: 72vh; overflow-y: auto;">
-                            <div id="photos"></div>
-                        </div>
-                        <button class="btn btn-success w-100 mb-3" id="selectImageBtn">Select Image</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+<!-- MOBILE: camera-app full screen -->
+<div class="d-md-none photobooth-page">
+  <div class="camera-wrap">
+
+    <div class="camera-topbar">
+      <div class="camera-brand">Photo Booth</div>
+      <button class="camera-upload" type="button" id="uploadTriggerBtn">Upload</button>
     </div>
+
+    <div class="booth">
+      <video id="videoMobile" autoplay playsinline muted></video>
+    </div>
+
+    <!-- If auto-start is blocked (Safari), user can tap to start -->
+    <div class="camera-start-overlay" id="cameraStartOverlay">
+      <div class="text-center">
+        <button class="btn btn-light btn-lg" type="button" id="startCameraBtnOverlay">Start camera</button>
+        <div class="small text-white-50 mt-2">We’ll ask for permission.</div>
+      </div>
+    </div>
+
+    <div class="camera-dock">
+      <button class="shutter" id="shutterBtn" type="button" aria-label="Take photo" disabled>
+        <span class="shutter-inner"></span>
+      </button>
+    </div>
+
+    <div class="capture-flash" id="captureFlash"></div>
+    <input type="file" id="photoInput" accept="image/*" class="d-none" />
+  </div>
+</div>
+
+<!-- DESKTOP / iPad: clean two-column layout -->
+<div class="d-none d-md-block desktop-photobooth">
+  <div class="container py-4">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-7">
+        <div class="card rounded-4 shadow-sm overflow-hidden">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="fw-semibold">Photo Booth</div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-success btn-sm" id="startCameraBtn" type="button">Start Camera</button>
+              <button class="btn btn-danger btn-sm" id="captureBtn" type="button" disabled>Take Photo</button>
+              <button class="btn btn-warning btn-sm" id="stopCameraBtn" type="button" disabled>Stop</button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="desktop-video-wrap">
+              <video id="videoDesktop" autoplay playsinline muted></video>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card rounded-4 shadow-sm">
+          <div class="card-body">
+            <h5 class="mb-2">Upload instead</h5>
+            <p class="text-muted mb-3">Choose a photo from your device.</p>
+
+            <form class="d-flex gap-2 align-items-center flex-wrap" action="/photosession/upload" method="POST" enctype="multipart/form-data">
+              <input type="file" name="photo" class="form-control" id="photoInputDesktop" accept="image/*" required>
+              <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+
+            <hr class="my-4" />
+
+            <div class="text-muted small">
+              After you take/upload a photo, you’ll get the “Use this photo?” sheet to confirm and enter member info.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Shared slide-up: Confirm + Your Info -->
+<div class="offcanvas offcanvas-bottom rounded-top-4" tabindex="-1" id="photoFlowSheet">
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title">Use this photo?</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+
+  <div class="offcanvas-body">
+    <div class="mb-3" id="previewWrap">
+      <img id="flowPreview" class="img-fluid rounded-4 border" alt="Preview" />
+      <div class="form-text mt-2">If you don’t like it, retake and try again.</div>
+    </div>
+
+    <div id="flowStepConfirm">
+      <div class="d-grid gap-2">
+        <button class="btn btn-primary btn-lg" id="flowUseBtn" type="button">Select</button>
+        <button class="btn btn-outline-secondary btn-lg" id="flowRetakeBtn" type="button">Retake</button>
+      </div>
+    </div>
+
+    <div id="flowStepInfo" style="display:none;">
+      <form id="infoForm" action="/photosession/details" method="POST">
+        <div class="mb-3 text-start">
+          <label class="form-label" for="memberName">Name</label>
+          <input class="form-control form-control-lg" id="memberName" name="memberName" required />
+        </div>
+
+        <div class="mb-3 text-start">
+          <label class="form-label" for="memberEmail">Email</label>
+          <input type="email" class="form-control form-control-lg" id="memberEmail" name="memberEmail" required />
+        </div>
+
+        <div class="mb-3 text-start">
+          <label class="form-label" for="rotaryYears">Years in Rotary</label>
+          <div class="input-group input-group-lg">
+            <input type="number" min="0" max="100" class="form-control" id="rotaryYears" name="rotaryYears" required />
+            <span class="input-group-text">years</span>
+          </div>
+        </div>
+
+        <div class="mb-3 text-start">
+          <label class="form-label" for="comment">Comment (optional)</label>
+          <textarea class="form-control" id="comment" name="comment" rows="3" maxlength="500"></textarea>
+          <div class="form-text text-end"><span id="commentCount">0</span>/500</div>
+        </div>
+
+        <div class="info-submit-bar">
+          <button class="btn btn-success btn-lg w-100" type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

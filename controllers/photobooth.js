@@ -11,43 +11,39 @@ module.exports.index = async (req, res) => {
 module.exports.selectPhoto = async (req, res) => {
   if (!req.file) return res.status(400).send("No image uploaded.");
 
-  console.log("selectPhoto - Session ID:", req.sessionID);
+  try {
+    const processBuffer = await sharp(req.file.buffer)
+      .resize({ width: 800 })
+      .jpeg({ quality: 60 })
+      .toBuffer();
 
-  const processBuffer = await sharp(req.file.buffer)
-    .resize({ width: 800 })
-    .jpeg({ quality: 60 })
-    .toBuffer();
+    const bucket = getBucket();
+    const uploadStream = bucket.openUploadStream(`temp-${Date.now()}.jpeg`, {
+      contentType: "image/jpeg",
+    });
 
-  console.log("Processed buffer length:", processBuffer.length);
+    uploadStream.end(processBuffer);
 
-  // Store in GridFS immediately
-  const bucket = getBucket();
-  const uploadStream = bucket.openUploadStream(`temp-${Date.now()}.jpeg`, {
-    contentType: "image/jpeg"
-  });
+    await new Promise((resolve, reject) => {
+      uploadStream.on("finish", resolve);
+      uploadStream.on("error", reject);
+    });
 
-  uploadStream.end(processBuffer);
+    // Store only the file id in session
+    req.session.selectedImageFileId = uploadStream.id.toString();
 
-  // Wait for upload to complete
-  await new Promise((resolve, reject) => {
-    uploadStream.on("finish", resolve);
-    uploadStream.on("error", reject);
-  });
-
-  // Store only the file ID in session
-  req.session.selectedImageFileId = uploadStream.id.toString();
-  
-  console.log("Stored file ID in session:", req.session.selectedImageFileId);
-
-  // Explicitly save session before responding
-  req.session.save((err) => {
-    if (err) {
-      console.error("Session save error:", err);
-      return res.status(500).json({ error: "Failed to save session" });
-    }
-    // Return success JSON instead of redirecting
-    res.json({ success: true, redirect: '/photosession/new' });
-  });
+    // Persist the session before replying
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ success: false, message: "Failed to save session" });
+      }
+      return res.json({ success: true });
+    });
+  } catch (err) {
+    console.error("selectPhoto error:", err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
 };
 
 module.exports.renderNewForm = async (req, res) => {
@@ -60,7 +56,7 @@ module.exports.renderNewForm = async (req, res) => {
 module.exports.streamPreviewImage = async (req, res) => {
   console.log("streamPreviewImage - Session ID:", req.sessionID);
   console.log("streamPreviewImage - selectedImageFileId:", req.session.selectedImageFileId);
-  
+
   if (!req.session.selectedImageFileId) {
     console.log("streamPreviewImage - No file ID in session, returning 404");
     return res.sendStatus(404);
@@ -74,7 +70,7 @@ module.exports.streamPreviewImage = async (req, res) => {
 };
 
 module.exports.saveDetails = async (req, res) => {
-  const { memberName, memberEmail, comment } = req.body;
+  const { memberName, memberEmail, rotaryYears, comment } = req.body;
 
   if (!req.session.selectedImageFileId) {
     return res.status(400).send("No image in session");
@@ -83,6 +79,7 @@ module.exports.saveDetails = async (req, res) => {
   const sessionDoc = await Photobooth.create({
     memberName,
     memberEmail,
+    rotaryYears,
     comment,
     sessionDate: new Date(),
     imageObjId: new mongoose.Types.ObjectId(req.session.selectedImageFileId)
@@ -104,25 +101,25 @@ module.exports.getAllSessions = async (req, res) => {
 // Get a single photo session by ID
 module.exports.getSession = async (req, res) => {
   const session = await Photobooth.findById(req.params.id);
-  
+
   if (!session) {
     req.flash("error", "Photo session not found");
     return res.redirect("/photosession");
   }
-  
+
   res.render("photobooth/show", { session });
 };
 
 // Stream image by session ID
 module.exports.streamSessionImage = async (req, res) => {
   const session = await Photobooth.findById(req.params.id);
-  
+
   if (!session || !session.imageObjId) {
     return res.sendStatus(404);
   }
 
   const fileId = new mongoose.Types.ObjectId(session.imageObjId);
-  
+
   res.set("Content-Type", "image/jpeg");
   getBucket().openDownloadStream(fileId).pipe(res);
 };
@@ -136,7 +133,7 @@ module.exports.getSessionsJSON = async (req, res) => {
 // Get single session as JSON (API endpoint)
 module.exports.getSessionJSON = async (req, res) => {
   const session = await Photobooth.findById(req.params.id);
-  
+
   if (!session) {
     return res.status(404).json({ error: "Photo session not found" });
   }
@@ -147,12 +144,12 @@ module.exports.getSessionJSON = async (req, res) => {
 // Show success page with session details
 module.exports.showSuccess = async (req, res) => {
   const session = await Photobooth.findById(req.params.id);
-  
+
   if (!session) {
     req.flash("error", "Photo session not found");
     return res.redirect("/photosession");
   }
-  
+
   res.render("photobooth/success", { session });
 };
 
@@ -170,15 +167,12 @@ module.exports.uploadImage = async (req, res) => {
     return res.redirect('/photosession');
   }
 
-  try {
+try {
     // Process image with sharp - resize to 800px width and compress
     const processBuffer = await sharp(req.file.buffer)
       .resize({ width: 800, withoutEnlargement: true })
       .jpeg({ quality: 60 })
       .toBuffer();
-
-    console.log("Uploaded file size:", req.file.size);
-    console.log("Processed buffer length:", processBuffer.length);
 
     // Store in GridFS
     const bucket = getBucket();
@@ -196,10 +190,8 @@ module.exports.uploadImage = async (req, res) => {
 
     // Store file ID in session
     req.session.selectedImageFileId = uploadStream.id.toString();
-    
-    console.log("Stored uploaded file ID in session:", req.session.selectedImageFileId);
 
-    res.redirect('/photosession/new');
+   return res.json({ success: true });
   } catch (error) {
     console.error("Image processing error:", error);
     req.flash("error", "Error processing image. Please try again.");
@@ -210,7 +202,7 @@ module.exports.uploadImage = async (req, res) => {
 // Delete a photo session and its image from GridFS
 module.exports.deleteSession = async (req, res) => {
   const session = await Photobooth.findById(req.params.id);
-  
+
   if (!session) {
     req.flash("error", "Photo session not found");
     return res.redirect("/photosession/gallery");
@@ -226,7 +218,7 @@ module.exports.deleteSession = async (req, res) => {
 
     // Delete the session document
     await Photobooth.findByIdAndDelete(req.params.id);
-    
+
     req.flash("success", "Photo session deleted successfully");
     res.redirect("/photosession/gallery");
   } catch (error) {

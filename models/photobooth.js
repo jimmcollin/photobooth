@@ -11,6 +11,7 @@ const PhotoboothSchema = new Schema(
       lowercase: true,
       match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please enter a valid email address"]
     },
+    rotaryYears: { type: Number, required: true, min: 0, max: 100 },
     comment: { 
       type: String, 
       default: "",

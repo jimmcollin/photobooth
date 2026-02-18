@@ -1,28 +1,39 @@
 <% layout('layouts/boilerplate') %>
-<div class="container">
-  <div class="row">
-    <div class="col-md-8 mx-auto">
-      <div class="card rounded-4 shadow mt-5">
-        <div class="card-body">
-          <% if (session._id) { %>
-            <img src="/photosession/<%= session._id %>/image" class="img-fluid rounded border mb-2" alt="Session photo" />
-          <% } else { %>
-            <p class="text-muted">No photo available for this session.</p>
-            <% } %>
-          <h2><%= session.memberName %></h2>
-          <p><strong>Email:</strong> <%= session.memberEmail %></p>
-          <p><strong>Comment:</strong></p>
-          <p class="comment-display"><%= session.comment %></p>
-          <p><strong>Date:</strong> <%= session.sessionDate.toLocaleDateString() %></p>
-          <a href="/photosession/gallery" class="btn btn-secondary">Back to Gallery</a>
-           <form action="/photosession/<%= session._id %>?_method=DELETE" method="POST" class="d-inline">
-              <button type="submit" class="btn btn-danger" 
-                      onclick="return confirm('Are you sure you want to delete this photo session?')">
-                Delete
-              </button>
-            </form>
+  <div class="photobooth-page">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+          <div class="card rounded-4 shadow mt-5">
+            <div class="card-body">
+              <% if (session._id) { %>
+                <img src="/photosession/<%= session._id %>/image" class="img-fluid rounded border mb-2"
+                  alt="Session photo" />
+                <% } else { %>
+                  <p class="text-muted">No photo available for this session.</p>
+                  <% } %>
+                    <h2>
+                      <%= session.memberName %>
+                    </h2>
+                    <p><strong>Email:</strong>
+                      <%= session.memberEmail %>
+                    </p>
+                    <p><strong>Comment:</strong></p>
+                    <p class="comment-display">
+                      <%= session.comment %>
+                    </p>
+                    <p><strong>Date:</strong>
+                      <%= session.sessionDate.toLocaleDateString() %>
+                    </p>
+                    <a href="/photosession/gallery" class="btn btn-secondary">Back to Gallery</a>
+                    <form action="/photosession/<%= session._id %>?_method=DELETE" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this photo session?')">
+                        Delete
+                      </button>
+                    </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>

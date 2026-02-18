@@ -1,32 +1,184 @@
 <% layout('layouts/boilerplate') %>
-  <div class="container">
-    <h1>Photo Gallery</h1>
-    <hr>
-    <div class="row">
-      <% for(let session of sessions) { %>
-        <div class="col-md-4 mb-4">
-          <div class="card rounded-4 shadow mt-2">
-            <div class="card-body">
-              <% if (session._id) { %>
-                <img src="/photosession/<%= session._id %>/image" class="img-fluid rounded border mb-2"
-                  alt="Session photo" />
-                <% } else { %>
-                  <p class="text-muted">No photo available for this session.</p>
-                  <% } %>
-                  <hr class="my-3 border-primary">  
-                    <h5 class="card-title">
-                      <%= session.memberName %>
-                    </h5>
-                    <p class="card-text comment-preview">
-                      <%= session.comment %>
-                    </p>
-                    <p class="text-muted">
-                      <%= session.memberEmail %>
-                    </p>
-                    <a href="/photosession/<%= session._id %>" class="btn btn-primary">View</a>
-            </div>
+
+<div class="photobooth-page">
+  <div class="container py-3">
+
+    <!-- <div class="d-flex align-items-center justify-content-between mb-2">
+      <h1 class="h3 mb-0">Photo Gallery</h1>
+      <a href="/photosession" class="btn btn-outline-secondary btn-sm">New photo</a>
+    </div>
+    <hr class="mt-2"> -->
+
+    <!-- Mobile: swipeable gallery (Bootstrap carousel supports touch swipe) -->
+    <div class="d-md-none">
+      <% if (!sessions || sessions.length === 0) { %>
+        <p class="text-muted">No photos yet.</p>
+      <% } else { %>
+        <div id="galleryCarousel" class="carousel slide gallery-carousel" data-bs-ride="false" data-bs-touch="true" data-bs-interval="false">
+          <div class="carousel-inner">
+
+            <% sessions.forEach((session, idx) => { %>
+              <div class="carousel-item <%= idx === 0 ? 'active' : '' %>">
+                <div class="gallery-slide">
+                  <div class="gallery-media">
+                    <% if (session._id) { %>
+                      <img src="/photosession/<%= session._id %>/image" class="gallery-img" alt="Session photo" />
+                    <% } else { %>
+                      <div class="text-muted">No photo available for this session.</div>
+                    <% } %>
+                  </div>
+
+                  <div class="gallery-meta card rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <div class="d-flex align-items-start justify-content-between gap-2">
+                        <div>
+                          <div class="h5 mb-1"><%= session.memberName || 'Member' %></div>
+                          <% if (session.comment) { %>
+                            <div class="gallery-comment text-muted mb-2"><%= session.comment %></div>
+                          <% } %>
+                          <% if (session.memberEmail) { %>
+                            <div class="small text-muted"><%= session.memberEmail %></div>
+                          <% } %>
+                        </div>
+                        <a href="/photosession/<%= session._id %>" class="btn btn-primary btn-sm">View</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+
+          </div>
+
+          <!-- Controls -->
+          <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev" aria-label="Previous">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next" aria-label="Next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          </button>
+
+          <!-- Dots -->
+          <div class="carousel-indicators">
+            <% sessions.forEach((_, idx) => { %>
+              <button type="button"
+                      data-bs-target="#galleryCarousel"
+                      data-bs-slide-to="<%= idx %>"
+                      class="<%= idx === 0 ? 'active' : '' %>"
+                      aria-current="<%= idx === 0 ? 'true' : 'false' %>"
+                      aria-label="Slide <%= idx + 1 %>"></button>
+            <% }) %>
           </div>
         </div>
-        <% } %>
+
+        <div class="text-center small text-muted mt-2">Swipe left/right to browse</div>
+      <% } %>
     </div>
+
+    <!-- Desktop / iPad: grid -->
+    <div class="d-none d-md-block">
+      <div class="row">
+        <% for(let session of sessions) { %>
+          <div class="col-md-4 mb-4">
+            <div class="card rounded-4 shadow mt-2 h-100">
+              <div class="card-body d-flex flex-column">
+                <% if (session._id) { %>
+                  <img src="/photosession/<%= session._id %>/image"
+                       class="img-fluid rounded border mb-2"
+                       alt="Session photo" />
+                <% } else { %>
+                  <p class="text-muted">No photo available for this session.</p>
+                <% } %>
+
+                <hr class="my-3">
+
+                <h5 class="card-title mb-1"><%= session.memberName %></h5>
+                <% if (session.comment) { %>
+                  <p class="gallery-comment card-text text-muted mb-2"><%= session.comment %></p>
+                <% } %>
+                <p class="text-muted mb-3"><%= session.memberEmail %></p>
+
+                <div class="mt-auto">
+                  <a href="/photosession/<%= session._id %>" class="btn btn-primary">View</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
   </div>
+</div>
+
+<style>
+  /* Gallery-only styles (kept here to avoid touching your main CSS) */
+  .gallery-carousel { position: relative; }
+  .gallery-carousel .carousel-indicators { margin-bottom: 0; }
+  .gallery-carousel .carousel-control-prev,
+  .gallery-carousel .carousel-control-next { width: 18%; }
+
+  .gallery-slide{
+    min-height: calc(100dvh - 160px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .gallery-media{
+  height: 65vh;            /* controls slide height */
+  max-height: 520px;       /* prevents giant images on tablets */
+  min-height: 300px;       /* prevents tiny images */
+  border-radius:18px;
+  overflow:hidden;
+  background:#000;
+  display:grid;
+  place-items:center;
+}
+
+.gallery-img{
+  width:100%;
+  height: 70vh;
+  object-fit:cover;        /* uniform crop */
+}
+
+.gallery-comment{
+  display: -webkit-box;
+  -webkit-line-clamp: 2;       /* number of visible lines */
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  max-height: calc(1.4em * 3);
+}
+
+
+  .gallery-meta{
+    flex: 0 0 auto;
+  }
+
+  /* keep controls visible over dark image */
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon{
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,.6));
+  }
+
+  /* Prevent carousel controls (prev/next hit areas) from stealing taps/clicks on buttons */
+  .gallery-carousel .carousel-control-prev,
+  .gallery-carousel .carousel-control-next{
+    width: 12%;
+    pointer-events: none;
+  }
+  .gallery-carousel .carousel-control-prev-icon,
+  .gallery-carousel .carousel-control-next-icon{
+    pointer-events: auto;
+  }
+
+  /* Ensure buttons/links inside slide are clickable */
+  .gallery-slide a, .gallery-slide button{
+    position: relative;
+    z-index: 2;
+  }
+
+</style>

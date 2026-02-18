@@ -1,3 +1,7 @@
+:root {
+    --navbar-height: 56px;
+}
+
 .container {
     text-align: center;
     box-sizing: border-box;
@@ -218,4 +222,246 @@ video {
     #new-photo-entry img {
         max-height: 35vh;
     }
+}
+
+/* Mobile sticky action bar */
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px;
+  background: rgba(255,255,255,0.96);
+  border-top: 1px solid rgba(0,0,0,.08);
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 9999;
+}
+
+.action-bar-inner {
+  display: grid;
+  gap: 8px;
+ grid-template-columns: repeat(3, 1fr);
+}
+
+.action-bar-inner .btn {
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  /* keep page content above the sticky bar */
+  body { padding-bottom: 86px; }
+}
+
+@media (max-width: 768px){
+  #uploadForm, #captured-photo-list, .gallery, #photos { display:none !important; }
+  body{ overflow:hidden; }
+}
+
+/* ---- Fix mobile sticky controls + prevent overflow ---- */
+.action-bar{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px;
+  background: rgba(255,255,255,0.96);
+  border-top: 1px solid rgba(0,0,0,.08);
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 9999;
+}
+.action-bar-inner{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.action-bar-inner .btn{
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  border-radius: 14px;
+  padding: 12px 0;
+}
+@media (max-width: 768px){
+  body{ padding-bottom: 86px; }
+  #desktopControls{ display:none !important; }
+  #video-capture-card{
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    border-radius: 0 !important;
+    height: 100dvh;
+  }
+  #video-capture-card .card-body{
+    height: calc(100dvh - 56px);
+    display: flex;
+    flex-direction: column;
+  }
+  .booth{ flex: 1; display:flex; overflow:hidden; }
+  #videoMobile{ width:100%; height:100%; object-fit: cover; display:block; }
+}
+#photoFlowSheet.offcanvas-bottom{ height: min(92dvh, 760px); }
+#photoFlowSheet .offcanvas-body{
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+
+/* ===== Tweaks requested (phone UX) ===== */
+@media (max-width: 768px){
+  /* Make it feel like a camera app: remove site chrome */
+  /* navbar visible */
+/* Raise shutter a bit so it isn't on the very edge */
+  .camera-dock{
+    padding-bottom: calc(52px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Offcanvas: let the info form fit without hunting for Submit */
+#photoFlowSheet.offcanvas-bottom{
+  height: min(96dvh, 820px) !important;
+}
+
+#photoFlowSheet .offcanvas-body{
+  padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Sticky submit inside the sheet */
+#photoFlowSheet .sheet-submit{
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(0,0,0,.08);
+}
+
+/* When in info step, keep preview shorter so the form fits */
+#photoFlowSheet.is-info #flowPreview{
+  max-height: 18dvh;
+  width: 100%;
+  object-fit: cover;
+}
+
+
+/* ===== Camera overlay essentials ===== */
+.camera-wrap{ position: relative; background:#000; }
+.booth{ height: 100vh; background:#000; }
+#videoMobile{ width:100%; height:100%; object-fit: cover; display:block; background:#000; }
+
+@media (max-width:768px){
+  .photobooth-page{ height: calc(100dvh - 56px); overflow:hidden; }
+  .camera-wrap, .booth{ height: calc(100dvh - 56px); }
+
+  .camera-topbar{
+    position:absolute;
+    top:calc(var(--navbar-height,56px) - 60px);
+    z-index: 3;
+    left: 0;
+    right: 0;
+    padding: 14px 14px 10px;
+    display:flex;
+    align-items:center;
+    background: linear-gradient(to bottom, rgba(0,0,0,.65), rgba(0,0,0,0));
+  }
+  .camera-brand{ color:#fff; font-weight:700; letter-spacing:.2px; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+  .camera-upload{
+    margin-left:auto;
+    border:1px solid rgba(255,255,255,.25);
+    background: rgba(0,0,0,.25);
+    color:#fff;
+    border-radius:999px;
+    padding:6px 12px;
+    font-size: 14px;
+  }
+
+  .camera-upload:active{
+  transform:scale(.95);
+  background:rgba(0,0,0,.45);
+}
+
+  .camera-start-overlay{
+    position:absolute;
+    inset:0;
+    padding-top:56px;
+    z-index: 4;
+    background: rgba(0,0,0,.55);
+    display:grid;
+    place-items:center;
+    padding:20px;
+    text-align:center;
+  }
+  .camera-start-overlay.is-hidden{ display:none; }
+
+  .camera-dock{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    z-index:3;
+    display:flex;
+    justify-content:center;
+    padding: 14px 16px calc(60px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,0));
+  }
+  .shutter{
+    width:78px;height:78px;
+    border-radius:999px;
+    border:3px solid rgba(255,255,255,.95);
+    background: rgba(255,255,255,.10);
+    display:grid;
+    place-items:center;
+  }
+  .shutter-inner{
+    width:58px;height:58px;
+    border-radius:999px;
+    background: rgba(255,255,255,.92);
+  }
+  .shutter:disabled{ opacity:.5; }
+
+  .capture-flash{
+    position:absolute; inset:0;
+    background:#fff; opacity:0;
+    z-index:6; pointer-events:none;
+  }
+  .capture-flash.is-on{ animation: flash 220ms ease-out; }
+  @keyframes flash{ 0%{opacity:0} 35%{opacity:.75} 100%{opacity:0} }
+}
+
+/* Bottom sheet tweaks */
+#photoFlowSheet.offcanvas-bottom{ height: min(96dvh, 900px); }
+#photoFlowSheet .offcanvas-body{
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(18px + env(safe-area-inset-bottom));
+}
+#photoFlowSheet.is-info #previewWrap{ max-height: 30dvh; }
+#photoFlowSheet.is-info #flowPreview{ max-height: 22dvh; object-fit: cover; width: 100%; }
+.info-submit-bar{
+  position: sticky;
+  bottom: 0;
+  background:#fff;
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(0,0,0,.08);
+}
+
+#commentCount.warn {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+
+/* ===== Desktop photobooth layout ===== */
+.desktop-photobooth .desktop-video-wrap{
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+}
+.desktop-photobooth #videoDesktop{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  display:block;
+  background:#000;
 }
