@@ -3,7 +3,7 @@
     <div class="container">
       <div class="row">
         <div class="col-md-8 mx-auto">
-          <div class="card rounded-4 shadow mt-5">
+          <div class="card rounded-4 shadow mt-2">
             <div class="card-body">
               <% if (session._id) { %>
                 <img src="/photosession/<%= session._id %>/image" class="img-fluid rounded border mb-2"
@@ -24,10 +24,9 @@
                     <p><strong>Date:</strong>
                       <%= session.sessionDate.toLocaleDateString() %>
                     </p>
-                    <a href="/photosession/gallery" class="btn btn-secondary">Back to Gallery</a>
-                    <form action="/photosession/<%= session._id %>?_method=DELETE" method="POST" class="d-inline">
-                      <button type="submit" class="btn btn-danger"
-                        onclick="return confirm('Are you sure you want to delete this photo session?')">
+                    <a href="/photosession/gallery" class="btn btn-secondary mb-2">Back to Gallery</a>
+                    <form class="d-flex justify-content-end pe-3" id="deleteForm" action="/photosession/<%= session._id %>?_method=DELETE" method="POST">
+                      <button type="submit" class="btn btn-link text-muted small p-0" onclick="if(confirm('Are you sure you want to delete this photo session?')) { document.getElementById('deleteForm').submit(); }">
                         Delete
                       </button>
                     </form>

@@ -87,17 +87,18 @@
   <div class="offcanvas-body">
     <div class="mb-3" id="previewWrap">
       <img id="flowPreview" class="img-fluid rounded-4 border" alt="Preview" />
-      <div class="form-text mt-2">If you don’t like it, retake and try again.</div>
     </div>
 
     <div id="flowStepConfirm">
+      <div class="form-text mb-3" style="margin-top: -8px;">If you don’t like it, retake and try again.</div>
       <div class="d-grid gap-2">
         <button class="btn btn-primary btn-lg" id="flowUseBtn" type="button">Select</button>
         <button class="btn btn-outline-secondary btn-lg" id="flowRetakeBtn" type="button">Retake</button>
       </div>
     </div>
 
-    <div id="flowStepInfo" style="display:none;">
+    <div id="flowStepInfo" style="display:none; margin-top: 4rem;">
+      <div class="form-text mb-3" style="margin-top: -8px;">Please fill out your information below.</div>
       <form id="infoForm" action="/photosession/details" method="POST">
         <div class="mb-3 text-start">
           <label class="form-label" for="memberName">Name</label>
